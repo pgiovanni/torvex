@@ -42,6 +42,16 @@ public static class ServiceCatalog
     public const string LoggingProMonthly = "$4/mo";
     public const string LoggingProYearly = "$36/yr";
 
+    // ── AltGuard: verification gate + alt detection ───────────────────
+    // The gate itself is free (security shouldn't be paywalled — the
+    // calibration IS the product's credibility). Sold on top: reviewed
+    // verdicts (Security AI, not built yet — early access via /Contact)
+    // and human incident response, which IS available today.
+    // Design: altguard/docs/MULTI-SERVER-DESIGN.md.
+    public const string AltGuardSlug = "discord-altguard";
+    public const string SecurityAiSlug = "discord-security-ai";
+    public const string IncidentResponseSlug = "discord-incident-response";
+
     public static readonly ServicePackage[] Packages =
     {
         // ── Monthly subscriptions ────────────────────────────────────
@@ -127,6 +137,59 @@ public static class ServiceCatalog
             IsSubscription: true,
             IsBotAddon: true,
             Slug: LoggingProSlug),
+        new(
+            "AltGuard — verification & alt detection",
+            "🧿",
+            "Free",
+            "included with the bot",
+            "A verification gate that catches alt accounts and ban evaders by device and connection, not by IP guesswork — with two months of false-positive calibration behind every verdict. Members who are wrongly flagged get a real appeal, and your mods get one click to release them.",
+            new[]
+            {
+                "Device + connection matching, tuned against real false positives",
+                "Ban-evasion detection scoped to YOUR server's ban list",
+                "Roles saved on hold and restored exactly on release",
+                "Runs alongside carl-bot or your existing verification — observe, assist, or full gate",
+                "What happens in other servers never punishes anyone in yours",
+                "Self-service release: your mods decide, not us"
+            },
+            IsSubscription: false,
+            IsBotAddon: true,
+            Slug: AltGuardSlug),
+        new(
+            "Security AI — reviewed verdicts",
+            "🔎",
+            "from $5/mo",
+            "early access · per server",
+            "Every flagged member gets a written second opinion before your mods decide: what the evidence actually shows, what argues against it, and a recommendation. The reviewer reasons over the case — never over anyone's identity or raw data, which it is never given.",
+            new[]
+            {
+                "A written assessment on every flagged case, not just a score",
+                "Higher tiers argue both sides and rule between them",
+                "Reasons from evidence it can't leak — no identities, no raw telemetry",
+                "Elite adds a security event feed of your server for your own SIEM",
+                "Case files with reliability notes and past outcomes, free either way",
+                "In build — join early access and help set the shape"
+            },
+            IsSubscription: true,
+            IsBotAddon: true,
+            Slug: SecurityAiSlug),
+        new(
+            "Incident Response — Discord",
+            "🚨",
+            "$49",
+            "per incident · same-day",
+            "Something happened: a raid, a nuke attempt, a ban evader you can't pin down, a link that stole someone's account. We investigate with the full toolset and tell you what actually happened, who did it, and what to change so it doesn't happen twice.",
+            new[]
+            {
+                "Written findings: what happened, which accounts are linked, how confident",
+                "Actor tripwires configured so their return is caught automatically",
+                "Server hardening review off the back of the incident",
+                "Findings cover your server only — nobody else's members are disclosed",
+                "Included quarterly with Security AI Elite"
+            },
+            IsSubscription: false,
+            IsBotAddon: true,
+            Slug: IncidentResponseSlug),
 
         // ── One-off projects ─────────────────────────────────────────
         new(

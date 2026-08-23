@@ -45,6 +45,7 @@
         @foreach (var pkg in ServiceCatalog.Packages.Where(p => p.IsBotAddon))
         {
             var isAi = pkg.Slug == ServiceCatalog.AiPackSlug;
+            var isFreeAddon = pkg.Slug == ServiceCatalog.AltGuardSlug;
             <div class="feature-card pkg-card" id="@pkg.Slug">
                 <span class="feature-icon">@pkg.Icon</span>
                 <h3>@pkg.Name</h3>
@@ -60,6 +61,11 @@
                 {
                     <a href="/Checkout/AiPack" class="btn-large btn-signup pkg-order">Start here</a>
                     <p class="pkg-price-note" style="margin-top:8px">You'll pick the server on the bot dashboard, then pay by card. Credit applies automatically.</p>
+                }
+                else if (isFreeAddon)
+                {
+                    <a href="https://forerunner.torvex.app/invite" class="btn-large btn-signup pkg-order">Add the bot — free</a>
+                    <p class="pkg-price-note" style="margin-top:8px">Turn it on in the dashboard when you're ready. Start in observe mode: it watches and reports, and changes nobody's roles.</p>
                 }
                 else
                 {
