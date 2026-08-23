@@ -65,12 +65,12 @@
                 else if (isFreeAddon)
                 {
                     <a href="https://forerunner.torvex.app/invite" class="btn-large btn-signup pkg-order">Add the bot — free</a>
-                    <p class="pkg-price-note" style="margin-top:8px">Turn it on in the dashboard when you're ready. Start in observe mode: it watches and reports, and changes nobody's roles.</p>
+                    <p class="pkg-price-note" style="margin-top:8px">Start in observe mode: it watches and reports, and changes nobody's roles. <a href="https://forerunner.torvex.app/docs/security">See everything it watches →</a></p>
                 }
                 else
                 {
                     <a href="/Contact?package=@Uri.EscapeDataString(pkg.Name)" class="btn-large btn-signup pkg-order">Get Pro for my server</a>
-                    <p class="pkg-price-note" style="margin-top:8px">Tell us the server name — Pro is switched on the same day and your invoice follows. Card checkout is coming; in the meantime you're never metered and never auto-renewed without asking.</p>
+                    <p class="pkg-price-note" style="margin-top:8px">Tell us the server name — it's switched on the same day and your invoice follows. Card checkout is coming; in the meantime you're never metered and never auto-renewed without asking.@if (pkg.Slug == ServiceCatalog.SecurityAiSlug || pkg.Slug == ServiceCatalog.IncidentResponseSlug) {<text> <a href="https://forerunner.torvex.app/docs/security">Read the security docs →</a></text>}</p>
                 }
             </div>
         }
