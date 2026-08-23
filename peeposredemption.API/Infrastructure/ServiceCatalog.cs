@@ -31,6 +31,17 @@ public static class ServiceCatalog
     // billing rate (AI_PAID_MARKUP), never as a visible pay-more-get-less gap.
     public const decimal AiPackCreditUsd = 20m;
 
+    // ── Discord Logging Pro: the bot's long message archive ───────────
+    // Free tier (every server, no purchase): deleted/edited messages AND
+    // their images recoverable for 24h. Pro = 90 days of text, 30 days of
+    // files, searchable. Priced to undercut Quark ($6/mo, $60/yr) — Paul,
+    // 2026-08-23. Per server. Windows live in the bot's env (MSGLOG_PRO_*).
+    // Checkout is not built yet: the card routes to /Contact and the operator
+    // grants with `/msglog pro-grant` until the Stripe subscription ships.
+    public const string LoggingProSlug = "discord-logging-pro";
+    public const string LoggingProMonthly = "$4/mo";
+    public const string LoggingProYearly = "$36/yr";
+
     public static readonly ServicePackage[] Packages =
     {
         // ── Monthly subscriptions ────────────────────────────────────
@@ -98,6 +109,24 @@ public static class ServiceCatalog
             IsBotAddon: true,
             Slug: AiPackSlug,
             PriceCents: AiPackPriceCents),
+        new(
+            "Discord Logging Pro — Torvex Forerunner",
+            "📜",
+            LoggingProMonthly,
+            $"or {LoggingProYearly} (save 25%) · per server",
+            "Every server with the bot already gets the free log: deleted and edited messages — images included — recoverable for 24 hours, with who-deleted-it and voice mute/deafen tracking. Pro keeps a real archive you can search when the question comes up a week later.",
+            new[]
+            {
+                "90 days of deleted-message history (Quark Pro: 4 weeks)",
+                "30 days of deleted images and files, up to 1 GB per server",
+                "Searchable: a member's deleted messages, name and timeout history",
+                "Bulk-delete transcripts attributed to the moderator",
+                "No per-channel message caps, ever",
+                "Free tier — 24h window, server mute/deafen logs, bot-action logs — stays free"
+            },
+            IsSubscription: true,
+            IsBotAddon: true,
+            Slug: LoggingProSlug),
 
         // ── One-off projects ─────────────────────────────────────────
         new(

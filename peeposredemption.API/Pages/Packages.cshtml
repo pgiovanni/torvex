@@ -40,10 +40,11 @@
 <section class="features" style="padding-top:0">
     <h2>For your Discord server</h2>
     <p class="section-subtitle">The <a href="https://forerunner.torvex.app">Torvex Forerunner bot</a> is free to
-        <a href="https://forerunner.torvex.app/invite">add</a> — this unlocks its AI on your server.</p>
+        <a href="https://forerunner.torvex.app/invite">add</a> — moderation, verification, logging and AI are all included. These add-ons extend it.</p>
     <div class="features-grid pkg-grid">
         @foreach (var pkg in ServiceCatalog.Packages.Where(p => p.IsBotAddon))
         {
+            var isAi = pkg.Slug == ServiceCatalog.AiPackSlug;
             <div class="feature-card pkg-card" id="@pkg.Slug">
                 <span class="feature-icon">@pkg.Icon</span>
                 <h3>@pkg.Name</h3>
@@ -55,8 +56,16 @@
                         <li>@f</li>
                     }
                 </ul>
-                <a href="/Checkout/AiPack" class="btn-large btn-signup pkg-order">Start here</a>
-                <p class="pkg-price-note" style="margin-top:8px">You'll pick the server on the bot dashboard, then pay by card. Credit applies automatically.</p>
+                @if (isAi)
+                {
+                    <a href="/Checkout/AiPack" class="btn-large btn-signup pkg-order">Start here</a>
+                    <p class="pkg-price-note" style="margin-top:8px">You'll pick the server on the bot dashboard, then pay by card. Credit applies automatically.</p>
+                }
+                else
+                {
+                    <a href="/Contact?package=@Uri.EscapeDataString(pkg.Name)" class="btn-large btn-signup pkg-order">Get Pro for my server</a>
+                    <p class="pkg-price-note" style="margin-top:8px">Tell us the server name — Pro is switched on the same day and your invoice follows. Card checkout is coming; in the meantime you're never metered and never auto-renewed without asking.</p>
+                }
             </div>
         }
     </div>
