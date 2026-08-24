@@ -40,7 +40,7 @@
 <section class="features" style="padding-top:0">
     <h2>For your Discord server</h2>
     <p class="section-subtitle">The <a href="https://forerunner.torvex.app">Torvex Forerunner bot</a> is free to
-        <a href="https://forerunner.torvex.app/invite">add</a> — moderation, verification, logging and AI are all included. These add-ons extend it.</p>
+        <a href="https://forerunner.torvex.app/invite">add</a> — moderation, verification, logging, leveling and server stats are all included. These add-ons extend it.</p>
     <div class="features-grid pkg-grid">
         @foreach (var pkg in ServiceCatalog.Packages.Where(p => p.IsBotAddon))
         {
@@ -64,6 +64,14 @@
                 }
                 else if (isFreeAddon)
                 {
+                    <div class="pkg-not-included">
+                        <div class="pkg-not-included-title">Not included — sold separately:</div>
+                        <ul class="pkg-list pkg-list-missing">
+                            <li>AI-written case assessments — <a href="#@ServiceCatalog.SecurityAiSlug">Security AI</a></li>
+                            <li>A security event feed for your own SIEM — <a href="#@ServiceCatalog.SecurityAiSlug">Security AI Elite</a></li>
+                            <li>A human investigating your incident — <a href="#@ServiceCatalog.IncidentResponseSlug">Incident Response</a></li>
+                        </ul>
+                    </div>
                     <a href="https://forerunner.torvex.app/invite" class="btn-large btn-signup pkg-order">Add the bot — free</a>
                     <p class="pkg-price-note" style="margin-top:8px">Start in observe mode: it watches and reports, and changes nobody's roles. <a href="https://forerunner.torvex.app/docs/security">See everything it watches →</a></p>
                 }

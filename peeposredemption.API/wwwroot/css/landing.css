@@ -1065,6 +1065,34 @@ a { text-decoration: none; color: inherit; }
     margin-top: auto;
 }
 
+.pkg-not-included {
+    margin: 0 0 16px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border, rgba(128, 128, 128, 0.25));
+}
+
+.pkg-not-included-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+}
+
+.pkg-list.pkg-list-missing {
+    margin: 6px 0 0;
+    flex-grow: 0;
+}
+
+.pkg-list-missing li {
+    color: var(--text-muted);
+}
+
+.pkg-list-missing li::before {
+    content: "✕";
+    color: var(--text-muted);
+}
+
 /* ===== CONTACT FORM ===== */
 .contact-section {
     max-width: 620px;

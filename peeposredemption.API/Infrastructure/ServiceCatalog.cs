@@ -110,7 +110,7 @@ public static class ServiceCatalog
                 "Daily free energy for every member — no per-user fees",
                 "Credit is applied to your server automatically after checkout",
                 "AI pauses when credit runs out — never a surprise bill",
-                "Privacy-scoped: private and staff channels are never read",
+                "Privacy-scoped: it reads only the channel it's asked in — context never crosses channels",
                 "Requires the free Torvex Forerunner bot"
             },
             IsSubscription: false,
@@ -157,16 +157,16 @@ public static class ServiceCatalog
             "Security AI — reviewed verdicts",
             "🔎",
             "from $5/mo",
-            "early access · per server",
+            "three tiers · per server",
             "Every flagged member gets a written second opinion before your mods decide: what the evidence actually shows, what argues against it, and a recommendation. The reviewer reasons over the case — never over anyone's identity or raw data, which it is never given.",
             new[]
             {
-                "A written assessment on every flagged case, not just a score",
-                "Higher tiers argue both sides and rule between them",
-                "Reasons from evidence it can't leak — no identities, no raw telemetry",
-                "Elite adds a security event feed of your server for your own SIEM",
+                "Standard — $5/mo: a written assessment on every flagged case, not just a score",
+                "Advanced — $12/mo: argues both sides and rules between them, with your server's past outcomes in context",
+                "Elite — from $79/mo: adversarial review panel, a security event feed of your server for your own SIEM, and one incident response included each quarter",
+                "Every tier reasons from evidence it can't leak — no identities, no raw telemetry",
                 "Case files with reliability notes and past outcomes, free either way",
-                "In build — join early access and help set the shape"
+                "Early access — first servers help set the shape"
             },
             IsSubscription: true,
             IsBotAddon: true,
