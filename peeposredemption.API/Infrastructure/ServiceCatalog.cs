@@ -21,21 +21,19 @@ public record ServicePackage(
 public static class ServiceCatalog
 {
     // ── Discord AI add-on: prepaid credit pack ──────────────────────────
-    // Price is what the customer pays; AiPackCreditUsd is the AI usage the
-    // bot grants for it — the gap is the margin (Stripe fees + upkeep).
-    // Both are read by the bot from its own .env (AI_CREDIT_PACK_USD /
-    // AI_CREDIT_COMPUTE_USD) — keep the two in step when changing them.
+    // Face value equals the price: AiPackCreditUsd is the AI usage the bot
+    // grants for AiPackPriceCents, and the two are always the same number.
+    // The bot mirrors the price in its own .env (AI_CREDIT_PACK_USD) — change
+    // both together.
     public const string AiPackSlug = "discord-ai-addon";
     public const long AiPackPriceCents = 2000;
-    // Face value equals the price — margin is carried in the bot's metered
-    // billing rate (AI_PAID_MARKUP), never as a visible pay-more-get-less gap.
     public const decimal AiPackCreditUsd = 20m;
 
     // ── Discord Logging Pro: the bot's long message archive ───────────
     // Free tier (every server, no purchase): deleted/edited messages AND
     // their images recoverable for 24h. Pro = 90 days of text, 30 days of
-    // files, searchable. Priced to undercut Quark ($6/mo, $60/yr) — Paul,
-    // 2026-08-23. Per server. Windows live in the bot's env (MSGLOG_PRO_*).
+    // files, searchable. Priced per server; the retention windows live in the
+    // bot's env (MSGLOG_PRO_*).
     // Checkout is not built yet: the card routes to /Contact and the operator
     // grants with `/msglog pro-grant` until the Stripe subscription ships.
     public const string LoggingProSlug = "discord-logging-pro";
