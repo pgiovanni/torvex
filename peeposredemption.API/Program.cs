@@ -1,4 +1,4 @@
-using FluentValidation;
+﻿using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.IdentityModel.Tokens;
 using peeposredemption.API.Hubs;
+using peeposredemption.API.Games;
 using peeposredemption.API.Infrastructure;
 using peeposredemption.Application.Features.Auth.Commands;
 using peeposredemption.Application.Features.Emoji.Queries;
@@ -99,6 +100,12 @@ builder.Services
 
 builder.Services.AddAuthorization();
 builder.Services.AddSignalR(o => o.EnableDetailedErrors = true);
+
+// Games hub (docs/GAMES-HUB.md): board engines live in Application, persistence + DTOs in API/Games
+builder.Services.AddSingleton(sp => new peeposredemption.Application.Games.StockfishService(
+    builder.Configuration["Games:StockfishPath"]));
+builder.Services.AddScoped<peeposredemption.API.Games.GameMatchService>();
+builder.Services.AddScoped<peeposredemption.API.Games.WordleService>();
 builder.Services.AddControllers();
 builder.Services.AddRazorPages();
 
@@ -213,6 +220,8 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapRazorPages();
 app.MapHub<ChatHub>("/hubs/chat");
+app.MapGamesEndpoints();
+app.MapHub<peeposredemption.API.Hubs.GamesHub>("/hubs/games");
 
 // Token refresh endpoint
 app.MapPost("/api/auth/refresh", async (HttpRequest req, IMediator mediator) =>
