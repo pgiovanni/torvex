@@ -104,6 +104,11 @@ builder.Services.AddSignalR(o => o.EnableDetailedErrors = true);
 // Games hub (docs/GAMES-HUB.md): board engines live in Application, persistence + DTOs in API/Games
 builder.Services.AddSingleton(sp => new peeposredemption.Application.Games.StockfishService(
     builder.Configuration["Games:StockfishPath"]));
+// Board games plug into the match service through IBoardGame; add a game = one class here.
+builder.Services.AddSingleton<peeposredemption.Application.Games.IBoardGame, peeposredemption.Application.Games.ChessGame>();
+builder.Services.AddSingleton<peeposredemption.Application.Games.IBoardGame, peeposredemption.Application.Games.ConnectFourGame>();
+builder.Services.AddSingleton<peeposredemption.Application.Games.IBoardGame, peeposredemption.Application.Games.TicTacToeGame>();
+builder.Services.AddSingleton<peeposredemption.Application.Games.GameRegistry>();
 builder.Services.AddScoped<peeposredemption.API.Games.GameMatchService>();
 builder.Services.AddScoped<peeposredemption.API.Games.WordleService>();
 builder.Services.AddControllers();

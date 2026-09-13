@@ -1,4 +1,5 @@
-﻿namespace peeposredemption.API.Games;
+﻿using peeposredemption.Application.Games;
+namespace peeposredemption.API.Games;
 
 // Wire shapes — docs/GAMES-HUB.md is the contract. camelCase via the default JSON options.
 
@@ -38,11 +39,6 @@ public sealed class MatchState : MatchSummary
     public object Board { get; set; } = new { };
 }
 
-public record ChessBoardDto(string Fen, List<string> Moves, MoveSquares? LastMove, bool Check, List<string> Legal,
-                            List<string> CapturedByP1, List<string> CapturedByP2, string Pgn);
-public record MoveSquares(string From, string To);
-public record Connect4BoardDto(int Rows, int Cols, int[][] Cells, int? LastCol, int[][] WinningCells);
-public record TicTacToeBoardDto(int[] Cells, int[] WinningCells);
 
 public record CreateMatchRequest(string Game, bool Rated, bool VsComputer, string? Difficulty, string? Seat);
 public record MoveRequest(string Move);

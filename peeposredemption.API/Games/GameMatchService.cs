@@ -15,7 +15,7 @@ namespace peeposredemption.API.Games;
 public sealed class GameMatchService
 {
     private readonly AppDbContext _db;
-    private readonly StockfishService _stockfish;
+    private readonly GameRegistry _games;
     private readonly ILogger<GameMatchService> _log;
 
     // One lock per match so two simultaneous move requests can't both pass the
@@ -24,10 +24,10 @@ public sealed class GameMatchService
 
     public const int MaxActivePerUser = 10;
 
-    public GameMatchService(AppDbContext db, StockfishService stockfish, ILogger<GameMatchService> log)
+    public GameMatchService(AppDbContext db, GameRegistry games, ILogger<GameMatchService> log)
     {
         _db = db;
-        _stockfish = stockfish;
+        _games = games;
         _log = log;
     }
 
@@ -59,7 +59,7 @@ public sealed class GameMatchService
 
     public async Task<List<LeaderRow>> LeaderboardAsync(string game, int limit)
     {
-        if (!GameKeys.IsBoardGame(game)) throw new GameApiException(400, "Unknown game.");
+        if (!_games.Contains(game)) throw new GameApiException(400, "Unknown game.");
         limit = Math.Clamp(limit, 1, 200);
         // Everyone with a rated game is listed so a small community never stares at
         // an empty board: established players (10+ rated games) rank first by
@@ -114,7 +114,7 @@ public sealed class GameMatchService
     public async Task<MatchState> CreateAsync(Guid me, CreateMatchRequest req)
     {
         var game = (req.Game ?? string.Empty).Trim().ToLowerInvariant();
-        if (!GameKeys.IsBoardGame(game)) throw new GameApiException(400, "Unknown game.");
+        if (!_games.Contains(game)) throw new GameApiException(400, "Unknown game.");
         var seat = (req.Seat ?? "random").Trim().ToLowerInvariant();
         if (seat is not ("p1" or "p2" or "random")) throw new GameApiException(400, "Seat must be p1, p2 or random.");
         var difficulty = (req.Difficulty ?? "medium").Trim().ToLowerInvariant();
@@ -134,7 +134,7 @@ public sealed class GameMatchService
             Rated = req.Rated && !req.VsComputer,
             VsComputer = req.VsComputer,
             Difficulty = req.VsComputer ? difficulty : null,
-            StateJson = InitialState(game),
+            StateJson = _games[game].InitialState(),
         };
 
         if (req.VsComputer)
@@ -261,7 +261,7 @@ public sealed class GameMatchService
         try
         {
             var m = await LoadAsync(id);
-            if (m.Game != GameKeys.Chess) throw new GameApiException(400, "Draw offers are a chess thing.");
+            if (!_games[m.Game].SupportsDrawOffers) throw new GameApiException(400, "Draw offers are not a thing in this game.");
             if (m.Status != GameMatchStatus.Active) throw new GameApiException(400, "This game isn't in progress.");
             if (m.VsComputer) throw new GameApiException(400, "The computer never agrees to a draw.");
             var seat = SeatOf(m, me) ?? throw new GameApiException(403, "You're watching this one.");
@@ -296,67 +296,15 @@ public sealed class GameMatchService
 
     // ── engine glue ──────────────────────────────────────────────────────────
 
-    private static string InitialState(string game) => game switch
-    {
-        GameKeys.Chess => ChessState.New().ToJson(),
-        GameKeys.Connect4 => ConnectFourState.New().ToJson(),
-        GameKeys.TicTacToe => TicTacToeState.New().ToJson(),
-        _ => "{}",
-    };
-
     /// <summary>Applies one move for <paramref name="seat"/> and advances/finishes the match.</summary>
     private void ApplyMove(GameMatch m, string? move, GameSide seat)
     {
-        var side = (int)seat;
+        var game = _games[m.Game];
         try
         {
-            switch (m.Game)
-            {
-                case GameKeys.Chess:
-                {
-                    var s = ChessState.FromJson(m.StateJson);
-                    ChessEngine.ApplyUci(s, move ?? string.Empty, side);
-                    m.StateJson = s.ToJson();
-                    var board = ChessEngine.Board(s);
-                    var outcome = ChessEngine.Outcome(board, out var winner);
-                    Advance(m);
-                    switch (outcome)
-                    {
-                        case ChessOutcome.Checkmate: Finish(m, (GameSide)winner, false, GameEndReason.Checkmate); break;
-                        case ChessOutcome.Stalemate: Finish(m, null, true, GameEndReason.Stalemate); break;
-                        case ChessOutcome.InsufficientMaterial: Finish(m, null, true, GameEndReason.InsufficientMaterial); break;
-                        case ChessOutcome.FiftyMoveRule: Finish(m, null, true, GameEndReason.FiftyMoveRule); break;
-                        case ChessOutcome.Repetition: Finish(m, null, true, GameEndReason.Repetition); break;
-                    }
-                    break;
-                }
-                case GameKeys.Connect4:
-                {
-                    if (!ConnectFourEngine.TryParseMove(move, out var col)) throw new ArgumentException("Pick a column 0-6.");
-                    var s = ConnectFourState.FromJson(m.StateJson);
-                    ConnectFourEngine.Apply(s, col, side);
-                    m.StateJson = s.ToJson();
-                    Advance(m);
-                    var w = ConnectFourEngine.Winner(s.Cells, out _);
-                    if (w != 0) Finish(m, (GameSide)w, false, GameEndReason.Line);
-                    else if (ConnectFourEngine.IsFull(s.Cells)) Finish(m, null, true, GameEndReason.BoardFull);
-                    break;
-                }
-                case GameKeys.TicTacToe:
-                {
-                    if (!TicTacToeEngine.TryParseMove(move, out var cell)) throw new ArgumentException("Pick a square 0-8.");
-                    var s = TicTacToeState.FromJson(m.StateJson);
-                    TicTacToeEngine.Apply(s, cell, side);
-                    m.StateJson = s.ToJson();
-                    Advance(m);
-                    var w = TicTacToeEngine.Winner(s.Cells, out _);
-                    if (w != 0) Finish(m, (GameSide)w, false, GameEndReason.Line);
-                    else if (TicTacToeEngine.IsFull(s.Cells)) Finish(m, null, true, GameEndReason.BoardFull);
-                    break;
-                }
-                default:
-                    throw new GameApiException(400, "Unknown game.");
-            }
+            m.StateJson = game.Apply(m.StateJson, move ?? string.Empty, seat, out var outcome);
+            Advance(m);
+            if (outcome.Ended) Finish(m, outcome.Winner, outcome.IsDraw, outcome.Reason);
         }
         catch (ArgumentException e) { throw new GameApiException(400, e.Message); }
         catch (InvalidOperationException e) { throw new GameApiException(400, e.Message); }
@@ -375,14 +323,8 @@ public sealed class GameMatchService
         var guard = 0;
         while (m.Status == GameMatchStatus.Active && m.Turn is { } t && PlayerIdOf(m, t) is null && guard++ < 4)
         {
-            string? mv = m.Game switch
-            {
-                GameKeys.Chess => await _stockfish.BestMoveAsync(ChessState.FromJson(m.StateJson), m.Difficulty),
-                GameKeys.Connect4 => ConnectFourEngine.BestMove(ConnectFourState.FromJson(m.StateJson), (int)t, m.Difficulty).ToString(),
-                GameKeys.TicTacToe => TicTacToeEngine.BestMove(TicTacToeState.FromJson(m.StateJson), (int)t, m.Difficulty).ToString(),
-                _ => null,
-            };
-            if (string.IsNullOrEmpty(mv) || mv == "-1")
+            var mv = await _games[m.Game].ComputerMoveAsync(m.StateJson, t, m.Difficulty);
+            if (string.IsNullOrEmpty(mv))
             {
                 _log.LogWarning("Computer had no move in match {Id} ({Game}) — declaring a draw", m.Id, m.Game);
                 Finish(m, null, true, GameEndReason.BoardFull);
@@ -537,38 +479,7 @@ public sealed class GameMatchService
         dto.DrawOfferBy = SideName(m.DrawOfferBy);
         var mySeat = SeatOf(m, me);
         var myTurn = m.Status == GameMatchStatus.Active && mySeat is not null && m.Turn == mySeat;
-        dto.Board = m.Game switch
-        {
-            GameKeys.Chess => ChessBoard(m, myTurn),
-            GameKeys.Connect4 => Connect4Board(m),
-            GameKeys.TicTacToe => TicTacToeBoard(m),
-            _ => new { },
-        };
+        dto.Board = _games.TryGet(m.Game, out var game) ? game.Board(m.StateJson, myTurn) : new { };
         return dto;
-    }
-
-    private static ChessBoardDto ChessBoard(GameMatch m, bool includeLegal)
-    {
-        var s = ChessState.FromJson(m.StateJson);
-        var b = ChessEngine.Board(s);
-        var (byP1, byP2) = ChessEngine.Captured(b);
-        MoveSquares? last = s.LastUci is { Length: >= 4 } u ? new MoveSquares(u[..2], u[2..4]) : null;
-        var legal = includeLegal ? ChessEngine.LegalUci(b) : new List<string>();
-        return new ChessBoardDto(s.Fen, s.Moves, last, ChessEngine.InCheck(b), legal, byP1, byP2, ChessEngine.Pgn(b));
-    }
-
-    private static Connect4BoardDto Connect4Board(GameMatch m)
-    {
-        var s = ConnectFourState.FromJson(m.StateJson);
-        ConnectFourEngine.Winner(s.Cells, out var win);
-        return new Connect4BoardDto(ConnectFourState.Rows, ConnectFourState.Cols, s.Cells,
-                                    s.Moves.Count > 0 ? s.Moves[^1] : null, win);
-    }
-
-    private static TicTacToeBoardDto TicTacToeBoard(GameMatch m)
-    {
-        var s = TicTacToeState.FromJson(m.StateJson);
-        TicTacToeEngine.Winner(s.Cells, out var win);
-        return new TicTacToeBoardDto(s.Cells, win);
     }
 }
