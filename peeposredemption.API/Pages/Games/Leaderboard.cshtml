@@ -1,0 +1,39 @@
+@page "/Games/Leaderboard"
+@model peeposredemption.API.Pages.Games.LeaderboardModel
+@{
+    ViewData["Title"] = "Leaderboard";
+    ViewData["NoIndex"] = true;
+}
+<link rel="stylesheet" href="~/css/games.css" asp-append-version="true" />
+<script>
+    window.TORVEX_UID = '@Model.CurrentUserId';
+    window.GAME_KEY = '@Model.GameKey';
+</script>
+
+<div class="app-shell">
+    <partial name="_DashboardNav" model='"games"' />
+    <div class="sidebar-backdrop"></div>
+
+    <div class="content-area settings-page games-page">
+        <div class="content-header">
+            <button class="mobile-menu-btn" aria-label="Open menu">&#9776;</button>
+            <a href="/Games" class="g-back" title="All games">&#8592;</a>
+            <span>🏆 Leaderboard</span>
+        </div>
+
+        <div class="settings-body">
+            <div class="g-tabs">
+                <a class="g-tab @(Model.GameKey == "chess" ? "active" : "")" href="/Games/Leaderboard?game=chess">♟️ Chess</a>
+                <a class="g-tab @(Model.GameKey == "connect4" ? "active" : "")" href="/Games/Leaderboard?game=connect4">🔴 Connect Four</a>
+                <a class="g-tab @(Model.GameKey == "tictactoe" ? "active" : "")" href="/Games/Leaderboard?game=tictactoe">❌ Tic-Tac-Toe</a>
+            </div>
+            <p class="g-muted g-small">Rated games only. Players with fewer than 10 rated games are provisional and not ranked yet.</p>
+            <div id="board" class="g-table-wrap"><span class="g-muted">Loading…</span></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/games/common.js" asp-append-version="true"></script>
+    <script src="~/js/games/leaderboard.js" asp-append-version="true"></script>
+}

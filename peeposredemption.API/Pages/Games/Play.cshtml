@@ -1,0 +1,65 @@
+@page "/Games/Play/{id:guid}"
+@model peeposredemption.API.Pages.Games.PlayModel
+@{
+    ViewData["Title"] = "Play";
+    ViewData["NoIndex"] = true;
+}
+<link rel="stylesheet" href="~/css/games.css" asp-append-version="true" />
+<script>
+    window.TORVEX_UID = '@Model.CurrentUserId';
+    window.MATCH_ID = '@Model.MatchId';
+</script>
+
+<div class="app-shell">
+    <partial name="_DashboardNav" model='"games"' />
+    <div class="sidebar-backdrop"></div>
+
+    <div class="content-area settings-page games-page play-page">
+        <div class="content-header">
+            <button class="mobile-menu-btn" aria-label="Open menu">&#9776;</button>
+            <a href="/Games" class="g-back" id="back-link" title="Back to lobby">&#8592;</a>
+            <span id="play-title">Loading…</span>
+            <span id="play-tag" class="g-tag" hidden></span>
+        </div>
+
+        <div class="settings-body play-body">
+            <div id="result" class="g-result" hidden></div>
+
+            <div class="play-layout">
+                <div class="play-board-col">
+                    <div id="bar-top" class="player-bar"></div>
+                    <div id="board" class="board-host"></div>
+                    <div id="bar-bottom" class="player-bar"></div>
+                </div>
+
+                <aside class="play-side">
+                    <div id="status" class="play-status"></div>
+                    <div id="controls" class="play-controls"></div>
+                    <div id="moves" class="move-list" hidden></div>
+                    <div id="captured" class="captured" hidden></div>
+                    <div class="play-footer">
+                        <button class="g-btn" id="rematch" hidden>Rematch</button>
+                        <a class="g-btn" id="lobby-link" href="/Games">Back to lobby</a>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="promo" class="g-modal" hidden>
+    <div class="g-modal-card">
+        <div class="g-modal-title">Promote to</div>
+        <div class="promo-choices">
+            <button data-p="q" title="Queen">♕</button>
+            <button data-p="r" title="Rook">♖</button>
+            <button data-p="b" title="Bishop">♗</button>
+            <button data-p="n" title="Knight">♘</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/games/common.js" asp-append-version="true"></script>
+    <script src="~/js/games/play.js" asp-append-version="true"></script>
+}

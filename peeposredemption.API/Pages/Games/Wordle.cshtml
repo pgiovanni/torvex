@@ -1,0 +1,58 @@
+@page "/Games/Wordle"
+@model peeposredemption.API.Pages.Games.WordleModel
+@{
+    ViewData["Title"] = "Wordle";
+    ViewData["NoIndex"] = true;
+}
+<link rel="stylesheet" href="~/css/games.css" asp-append-version="true" />
+<script>window.TORVEX_UID = '@Model.CurrentUserId';</script>
+
+<div class="app-shell">
+    <partial name="_DashboardNav" model='"games"' />
+    <div class="sidebar-backdrop"></div>
+
+    <div class="content-area settings-page games-page">
+        <div class="content-header">
+            <button class="mobile-menu-btn" aria-label="Open menu">&#9776;</button>
+            <a href="/Games" class="g-back" title="All games">&#8592;</a>
+            <span>🟩 Wordle</span>
+        </div>
+
+        <div class="settings-body">
+            <div class="g-tabs" id="mode-tabs">
+                <button class="g-tab active" data-mode="daily">Daily</button>
+                <button class="g-tab" data-mode="practice">Practice</button>
+                <button class="g-tab" data-mode="stats">Stats &amp; leaderboard</button>
+            </div>
+
+            <div id="pane-game" class="w-wrap">
+                <p id="w-caption" class="g-muted g-small"></p>
+                <div id="w-msg" class="w-msg" hidden></div>
+                <div id="w-grid" class="w-grid" aria-label="Guesses"></div>
+                <div id="w-done" class="w-done" hidden></div>
+                <div id="w-keys" class="w-keys" aria-label="Keyboard"></div>
+                <div class="g-btn-row w-practice-row" id="w-practice-row" hidden>
+                    <button class="g-btn" id="w-new">New word</button>
+                </div>
+            </div>
+
+            <div id="pane-stats" hidden>
+                <div class="g-two-col">
+                    <section class="settings-section">
+                        <h3 class="settings-heading">YOUR STATS</h3>
+                        <div id="w-stats"><span class="g-muted">Loading…</span></div>
+                    </section>
+                    <section class="settings-section">
+                        <h3 class="settings-heading">LAST 30 DAYS</h3>
+                        <div id="w-board" class="g-table-wrap"><span class="g-muted">Loading…</span></div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/games/common.js" asp-append-version="true"></script>
+    <script src="~/js/games/wordle.js" asp-append-version="true"></script>
+}
