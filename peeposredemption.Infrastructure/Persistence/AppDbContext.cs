@@ -1,5 +1,6 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using peeposredemption.Domain.Entities;
+using peeposredemption.Domain.Entities.Games;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -74,6 +75,11 @@ namespace peeposredemption.Infrastructure.Persistence
         // Customer contact/billing profiles
         public DbSet<CustomerProfile> CustomerProfiles { get; set; }
         public DbSet<PackageOrder> PackageOrders { get; set; }
+
+        // ── Games hub (chess / connect4 / tictactoe / wordle) ──
+        public DbSet<GameRating> GameRatings { get; set; }
+        public DbSet<GameMatch> GameMatches { get; set; }
+        public DbSet<WordlePlay> WordlePlays { get; set; }
 
         // Anti-alt security
         public DbSet<IpBan> IpBans { get; set; }
@@ -594,6 +600,59 @@ namespace peeposredemption.Infrastructure.Persistence
                 .WithMany()
                 .HasForeignKey(o => o.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // ── Games hub ───────────────────────────────────────────────
+            modelBuilder.Entity<GameRating>()
+                .HasIndex(r => new { r.UserId, r.Game })
+                .IsUnique();
+            modelBuilder.Entity<GameRating>()
+                .HasIndex(r => new { r.Game, r.Rating });
+            modelBuilder.Entity<GameRating>()
+                .HasOne(r => r.User)
+                .WithMany()
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<GameRating>()
+                .Property(r => r.Game).HasMaxLength(32);
+
+            modelBuilder.Entity<GameMatch>()
+                .HasIndex(m => new { m.Game, m.Status, m.CreatedAt });
+            modelBuilder.Entity<GameMatch>()
+                .HasIndex(m => new { m.Player1Id, m.Status });
+            modelBuilder.Entity<GameMatch>()
+                .HasIndex(m => new { m.Player2Id, m.Status });
+            modelBuilder.Entity<GameMatch>()
+                .HasOne(m => m.Player1)
+                .WithMany()
+                .HasForeignKey(m => m.Player1Id)
+                .OnDelete(DeleteBehavior.SetNull);
+            modelBuilder.Entity<GameMatch>()
+                .HasOne(m => m.Player2)
+                .WithMany()
+                .HasForeignKey(m => m.Player2Id)
+                .OnDelete(DeleteBehavior.SetNull);
+            modelBuilder.Entity<GameMatch>()
+                .Property(m => m.Game).HasMaxLength(32);
+            modelBuilder.Entity<GameMatch>()
+                .Property(m => m.CreatorSeat).HasMaxLength(8);
+            modelBuilder.Entity<GameMatch>()
+                .Property(m => m.Difficulty).HasMaxLength(8);
+            modelBuilder.Entity<GameMatch>()
+                .Property(m => m.StateJson).HasColumnType("jsonb");
+
+            modelBuilder.Entity<WordlePlay>()
+                .HasIndex(w => new { w.UserId, w.PuzzleDate })
+                .IsUnique()
+                .HasFilter("puzzle_date IS NOT NULL");
+            modelBuilder.Entity<WordlePlay>()
+                .HasIndex(w => new { w.PuzzleDate, w.Finished });
+            modelBuilder.Entity<WordlePlay>()
+                .HasOne(w => w.User)
+                .WithMany()
+                .HasForeignKey(w => w.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<WordlePlay>()
+                .Property(w => w.Answer).HasMaxLength(8);
 
             // ── Anti-Alt Security ────────────────────────────────────────
 
