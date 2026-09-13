@@ -1,0 +1,74 @@
+@page "/Games"
+@model peeposredemption.API.Pages.Games.IndexModel
+@{
+    ViewData["Title"] = "Games";
+    ViewData["NoIndex"] = true;
+}
+<link rel="stylesheet" href="~/css/games.css" asp-append-version="true" />
+<script>window.TORVEX_UID = '@Model.CurrentUserId';</script>
+
+<div class="app-shell">
+    <partial name="_DashboardNav" model='"games"' />
+    <div class="sidebar-backdrop"></div>
+
+    <div class="content-area settings-page games-page">
+        <div class="content-header">
+            <button class="mobile-menu-btn" aria-label="Open menu">&#9776;</button>
+            <span>🎮 Games</span>
+        </div>
+
+        <div class="settings-body">
+            <p class="g-lede">Play against the community, rank up, or just kill five minutes. Ratings are Elo — like lichess — and every rated game moves them.</p>
+
+            <div class="g-cards">
+                <a class="g-card" href="/Games/Chess">
+                    <span class="g-card-icon">♟️</span>
+                    <span class="g-card-title">Chess</span>
+                    <span class="g-card-sub">Rated Elo · live · vs computer</span>
+                </a>
+                <a class="g-card" href="/Games/Connect4">
+                    <span class="g-card-icon">🔴</span>
+                    <span class="g-card-title">Connect Four</span>
+                    <span class="g-card-sub">Rated · live · vs computer</span>
+                </a>
+                <a class="g-card" href="/Games/TicTacToe">
+                    <span class="g-card-icon">❌</span>
+                    <span class="g-card-title">Tic-Tac-Toe</span>
+                    <span class="g-card-sub">Rated · live · vs computer</span>
+                </a>
+                <a class="g-card" href="/Games/Wordle">
+                    <span class="g-card-icon">🟩</span>
+                    <span class="g-card-title">Wordle</span>
+                    <span class="g-card-sub">Daily puzzle · streaks · practice</span>
+                </a>
+            </div>
+
+            <section class="settings-section">
+                <h3 class="settings-heading">YOUR RATINGS</h3>
+                <div id="ratings" class="g-ratings"><span class="g-muted">Loading…</span></div>
+            </section>
+
+            <div class="g-two-col">
+                <section class="settings-section">
+                    <h3 class="settings-heading">YOUR GAMES IN PROGRESS</h3>
+                    <div id="active" class="g-list"><span class="g-muted">Loading…</span></div>
+                </section>
+                <section class="settings-section">
+                    <h3 class="settings-heading">OPEN CHALLENGES</h3>
+                    <p class="g-muted g-small">Anyone can join. Live — new challenges appear as they're posted.</p>
+                    <div id="open" class="g-list"><span class="g-muted">Loading…</span></div>
+                </section>
+            </div>
+
+            <section class="settings-section">
+                <h3 class="settings-heading">RECENT RESULTS</h3>
+                <div id="recent" class="g-list"><span class="g-muted">Loading…</span></div>
+            </section>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/games/common.js" asp-append-version="true"></script>
+    <script src="~/js/games/index.js" asp-append-version="true"></script>
+}

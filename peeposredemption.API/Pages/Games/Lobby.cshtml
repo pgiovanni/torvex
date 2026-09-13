@@ -1,0 +1,82 @@
+@page "/Games/{game:regex(^(Chess|Connect4|TicTacToe)$)}"
+@model peeposredemption.API.Pages.Games.LobbyModel
+@{
+    ViewData["Title"] = Model.Title;
+    ViewData["NoIndex"] = true;
+}
+<link rel="stylesheet" href="~/css/games.css" asp-append-version="true" />
+<script>
+    window.TORVEX_UID = '@Model.CurrentUserId';
+    window.GAME_KEY = '@Model.GameKey';
+    window.GAME_TITLE = '@Model.Title';
+</script>
+
+<div class="app-shell">
+    <partial name="_DashboardNav" model='"games"' />
+    <div class="sidebar-backdrop"></div>
+
+    <div class="content-area settings-page games-page">
+        <div class="content-header">
+            <button class="mobile-menu-btn" aria-label="Open menu">&#9776;</button>
+            <a href="/Games" class="g-back" title="All games">&#8592;</a>
+            <span>@Model.Icon @Model.Title</span>
+        </div>
+
+        <div class="settings-body">
+            <p class="g-lede">@Model.Blurb</p>
+
+            <div class="g-two-col">
+                <section class="settings-section">
+                    <h3 class="settings-heading">CREATE A CHALLENGE</h3>
+                    <p class="g-muted g-small">Posts to the open lobby. The first player to click Join plays you.</p>
+                    <div class="g-form">
+                        <label class="g-toggle">
+                            <input type="checkbox" id="rated" checked />
+                            <span>Rated — result changes both Elo ratings</span>
+                        </label>
+                        <div class="g-field">
+                            <span class="g-label">Your seat</span>
+                            <div class="g-radios">
+                                <label><input type="radio" name="seat" value="random" checked /> Random</label>
+                                <label><input type="radio" name="seat" value="p1" /> @Model.SeatP1</label>
+                                <label><input type="radio" name="seat" value="p2" /> @Model.SeatP2</label>
+                            </div>
+                        </div>
+                        <button class="btn-primary" id="create">Post challenge</button>
+                    </div>
+                </section>
+
+                <section class="settings-section">
+                    <h3 class="settings-heading">PLAY THE COMPUTER</h3>
+                    <p class="g-muted g-small">Casual — the computer never changes your rating. You play first.</p>
+                    <div class="g-btn-row">
+                        <button class="g-btn" data-diff="easy">😴 Easy</button>
+                        <button class="g-btn" data-diff="medium">🤔 Medium</button>
+                        <button class="g-btn" data-diff="hard">🔥 Hard</button>
+                    </div>
+                </section>
+            </div>
+
+            <section class="settings-section">
+                <h3 class="settings-heading">OPEN CHALLENGES</h3>
+                <div id="open" class="g-list"><span class="g-muted">Loading…</span></div>
+            </section>
+
+            <div class="g-two-col">
+                <section class="settings-section">
+                    <h3 class="settings-heading">TOP 10 <a class="g-link g-small" href="/Games/Leaderboard?game=@Model.GameKey">full leaderboard →</a></h3>
+                    <div id="top" class="g-table-wrap"><span class="g-muted">Loading…</span></div>
+                </section>
+                <section class="settings-section">
+                    <h3 class="settings-heading">YOUR RECENT GAMES</h3>
+                    <div id="recent" class="g-list"><span class="g-muted">Loading…</span></div>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/games/common.js" asp-append-version="true"></script>
+    <script src="~/js/games/lobby.js" asp-append-version="true"></script>
+}
