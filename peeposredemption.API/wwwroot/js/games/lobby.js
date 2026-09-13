@@ -1,4 +1,4 @@
-// Per-game lobby (/Games/Chess, /Games/Connect4, /Games/TicTacToe).
+﻿// Per-game lobby (/Games/Chess, /Games/Connect4, /Games/TicTacToe).
 (function () {
     const { api, esc, chip, matchRow, empty, toast, hub, wireLobbyButtons, UID } = window.G;
     const game = window.GAME_KEY;
@@ -28,7 +28,7 @@
             const rows = await api(`/leaderboard?game=${game}&limit=10`);
             if (!rows.length) { $('top').innerHTML = empty('Nobody is ranked yet — 10 rated games gets you on the board.'); return; }
             $('top').innerHTML = `<table class="g-table"><thead><tr><th>#</th><th>Player</th><th class="num">Rating</th><th class="num">W-L-D</th></tr></thead><tbody>${
-                rows.map(r => `<tr class="${r.player?.userId?.toLowerCase() === UID ? 'me' : ''}"><td class="g-rank r${r.rank}">${r.rank}</td><td>${chip(r.player)}</td><td class="num"><b>${r.rating}</b></td><td class="num">${r.wins}-${r.losses}-${r.draws}</td></tr>`).join('')
+                rows.map(r => `<tr class="${r.player?.userId?.toLowerCase() === UID ? 'me' : ''}"><td class="g-rank r${r.rank}">${r.rank}</td><td>${chip(r.player)}</td><td class="num"><b>${r.rating}</b>${r.provisional ? '<sup title="provisional — fewer than 10 rated games">?</sup>' : ''}</td><td class="num">${r.wins}-${r.losses}-${r.draws}</td></tr>`).join('')
             }</tbody></table>`;
         } catch (e) { $('top').innerHTML = empty(e.message); }
     }

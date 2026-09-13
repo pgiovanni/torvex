@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using Microsoft.EntityFrameworkCore;
 using peeposredemption.Application.Games;
 using peeposredemption.Domain.Entities;
@@ -61,12 +61,16 @@ public sealed class GameMatchService
     {
         if (!GameKeys.IsBoardGame(game)) throw new GameApiException(400, "Unknown game.");
         limit = Math.Clamp(limit, 1, 200);
+        // Everyone with a rated game is listed so a small community never stares at
+        // an empty board: established players (10+ rated games) rank first by
+        // rating, provisional players follow, flagged so the UI can show the "?".
         var rows = await _db.GameRatings.Include(r => r.User)
-            .Where(r => r.Game == game && r.Games >= GameRating.ProvisionalGames)
-            .OrderByDescending(r => r.Rating).ThenByDescending(r => r.Games).ThenBy(r => r.UpdatedAt)
+            .Where(r => r.Game == game && r.Games >= 1)
+            .OrderBy(r => r.Games >= GameRating.ProvisionalGames ? 0 : 1)
+            .ThenByDescending(r => r.Rating).ThenByDescending(r => r.Games).ThenBy(r => r.UpdatedAt)
             .Take(limit)
             .ToListAsync();
-        return rows.Select((r, i) => new LeaderRow(i + 1, Ref(r.User), r.Rating, r.Games, r.Wins, r.Losses, r.Draws)).ToList();
+        return rows.Select((r, i) => new LeaderRow(i + 1, Ref(r.User), r.Rating, r.Games, r.Wins, r.Losses, r.Draws, r.IsProvisional)).ToList();
     }
 
     public async Task<PlayerPage?> PlayerAsync(Guid userId, string? game, Guid me)
@@ -463,9 +467,17 @@ public sealed class GameMatchService
 
     private async Task<RatingCard> CardAsync(GameRating r)
     {
+        // Same ordering as the leaderboard: established players first, then provisional.
         int? rank = null;
-        if (!r.IsProvisional)
-            rank = 1 + await _db.GameRatings.CountAsync(x => x.Game == r.Game && x.Games >= GameRating.ProvisionalGames && x.Rating > r.Rating);
+        if (r.Games >= 1)
+        {
+            var establishedAhead = await _db.GameRatings.CountAsync(x => x.Game == r.Game && x.Games >= GameRating.ProvisionalGames
+                                                                       && (r.IsProvisional || x.Rating > r.Rating));
+            var provisionalAhead = r.IsProvisional
+                ? await _db.GameRatings.CountAsync(x => x.Game == r.Game && x.Games >= 1 && x.Games < GameRating.ProvisionalGames && x.Rating > r.Rating)
+                : 0;
+            rank = 1 + establishedAhead + provisionalAhead;
+        }
         return new RatingCard(r.Game, r.Rating, r.Peak, r.Games, r.Wins, r.Losses, r.Draws, r.IsProvisional, rank);
     }
 

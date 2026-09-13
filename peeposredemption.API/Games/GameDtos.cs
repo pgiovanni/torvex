@@ -1,4 +1,4 @@
-namespace peeposredemption.API.Games;
+﻿namespace peeposredemption.API.Games;
 
 // Wire shapes — docs/GAMES-HUB.md is the contract. camelCase via the default JSON options.
 
@@ -7,7 +7,7 @@ public record PlayerRef(Guid? UserId, string Name, string? AvatarUrl);
 public record RatingCard(string Game, int Rating, int Peak, int Games, int Wins, int Losses, int Draws,
                          bool Provisional, int? Rank);
 
-public record LeaderRow(int Rank, PlayerRef Player, int Rating, int Games, int Wins, int Losses, int Draws);
+public record LeaderRow(int Rank, PlayerRef Player, int Rating, int Games, int Wins, int Losses, int Draws, bool Provisional);
 
 public class MatchSummary
 {
